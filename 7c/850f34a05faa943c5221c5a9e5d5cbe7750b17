@@ -1,0 +1,19 @@
+skill/guide.md
+  s_f2956b24bbca01::t_651d02fb5ee779 1-170
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "7c850f34a05faa943c5221c5a9e5d5cbe7750b17",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
