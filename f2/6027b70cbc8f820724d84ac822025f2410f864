@@ -1,0 +1,19 @@
+docs/plans/2026-07-02-feat-hermes-guide-lightrag-coaching-skill-plan.md
+  s_bbdd8a165000c5::t_517b13570a916d 1-301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f26027b70cbc8f820724d84ac822025f2410f864",
+  "prompts": {},
+  "sessions": {
+    "s_bbdd8a165000c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35ee987f-d405-4aa2-9308-09cf440d52bb",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
