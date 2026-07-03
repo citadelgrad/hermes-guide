@@ -4,3 +4,9 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Secrets and local env
+.envrc
+
+# LightRAG data volume
+data/

@@ -1,0 +1,10 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "127.0.0.1:7842:8080"
+    volumes:
+      - ./data:/data
+    env_file:
+      - .envrc
+    restart: unless-stopped
