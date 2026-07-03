@@ -1,0 +1,31 @@
+backend/.envrc.example
+  s_f2956b24bbca01::t_4bd7780418a87d 1-7
+docker-compose.yml
+  s_f2956b24bbca01::t_68fab35b882a00 1-10
+Makefile
+  s_f2956b24bbca01::t_89d669beebddc9 1-16
+backend/main.py
+  s_f2956b24bbca01::t_b6ec92c471b206 1-227
+backend/pyproject.toml
+  s_f2956b24bbca01::t_d0621751ab283e 1-12
+backend/Dockerfile
+  s_f2956b24bbca01::t_ce726dbd38b493 1-8
+.gitignore
+  s_f2956b24bbca01::t_d50457fd8c4445 7-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "a9d2efc1d679a6069cdb9979296b637dfaa61a4a",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
