@@ -1,0 +1,29 @@
+skill/v1/guide.md
+  s_f2956b24bbca01::t_404643b86bb454 1-170
+README.md
+  s_3d3deda95d6fe4::t_b806b485d0281d 1-115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "78f0e658db04d0024195000af8532428e039f394",
+  "prompts": {},
+  "sessions": {
+    "s_3d3deda95d6fe4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "agent-ac1e17ff2f4083c0e",
+        "model": "unknown"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    },
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
