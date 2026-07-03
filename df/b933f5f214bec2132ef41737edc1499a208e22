@@ -1,0 +1,51 @@
+.agents/skills/beads/SKILL.md
+  s_bbdd8a165000c5::t_bddc9cc82415d7 1-80
+.agents/skills/beads/agents/openai.yaml
+  s_bbdd8a165000c5::t_b573efe2cab81e 1-4
+.beads/.gitignore
+  s_bbdd8a165000c5::t_1ae67a4a24935d 1-76
+.beads/README.md
+  s_bbdd8a165000c5::t_13641c98b92ffb 1-81
+.beads/config.yaml
+  s_bbdd8a165000c5::t_f544aa30930bde 1-66
+.beads/hooks/post-checkout
+  s_bbdd8a165000c5::t_7c4556b7439570 1-33
+.beads/hooks/post-merge
+  s_bbdd8a165000c5::t_150e2919557ba7 1-33
+.beads/hooks/pre-commit
+  s_bbdd8a165000c5::t_843a92facba2be 1-33
+.beads/hooks/pre-push
+  s_bbdd8a165000c5::t_31ddc3a1dd7b89 1-33
+.beads/hooks/prepare-commit-msg
+  s_bbdd8a165000c5::t_63732dbfbb2843 1-33
+.beads/metadata.json
+  s_bbdd8a165000c5::t_d5db6d16b93646 1-7
+.claude/settings.json
+  s_bbdd8a165000c5::t_64694c706c5b05 1-3
+.codex/config.toml
+  s_bbdd8a165000c5::t_796ccab8182b2e 1-2
+.codex/hooks.json
+  s_bbdd8a165000c5::t_dbc40f1f571e52 1-51
+.gitignore
+  s_bbdd8a165000c5::t_6f7d2278d9fea7 1-6
+AGENTS.md
+  s_bbdd8a165000c5::t_abdb4c49697612 1-127
+CLAUDE.md
+  s_bbdd8a165000c5::t_5265d8d1aeca55 1-77
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "dfb933f5f214bec2132ef41737edc1499a208e22",
+  "prompts": {},
+  "sessions": {
+    "s_bbdd8a165000c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35ee987f-d405-4aa2-9308-09cf440d52bb",
+        "model": "unknown"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
