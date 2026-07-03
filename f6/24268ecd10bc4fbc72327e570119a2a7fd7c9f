@@ -1,0 +1,27 @@
+pipeline/stages/ingest_skills.py
+  s_f2956b24bbca01::t_14f473bea802de 1-47
+pipeline/run-skills-pipeline.py
+  s_f2956b24bbca01::t_ea418263068297 1-22
+pipeline/pipeline-skills.yaml
+  s_f2956b24bbca01::t_83cb621ad79d8a 1-20
+pipeline/stages/parse_skills.py
+  s_f2956b24bbca01::t_00dcb09097dc25 1-115
+pipeline/stages/validate_skills.py
+  s_f2956b24bbca01::t_4e65799a5197c2 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f624268ecd10bc4fbc72327e570119a2a7fd7c9f",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
