@@ -1,0 +1,33 @@
+app = "hermes-guide"
+primary_region = "sjc"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[[vm]]
+  cpu_kind = "performance"
+  cpus = 1
+  memory = "512mb"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "10s"
+
+[[mounts]]
+  source = "lightrag_data"
+  destination = "/data"
+  initial_size = "10gb"
+  snapshot_retention = 5
+  auto_extend_size_threshold = 80
+  auto_extend_size_increment = "5gb"
+  auto_extend_size_limit = "50gb"

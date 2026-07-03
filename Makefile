@@ -1,4 +1,4 @@
-.PHONY: up down logs status restart
+.PHONY: up down logs status restart deploy
 
 up:
 	docker compose up -d --build
@@ -14,3 +14,10 @@ status:
 
 restart:
 	docker compose restart
+
+deploy:
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	@echo "  hermes-guide Fly.io deploy"
+	@echo "  See docs/deploy.md for first-deploy sequence."
+	@echo "  Run: cd backend && fly deploy"
+	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
