@@ -1,0 +1,24 @@
+docs/plans/2026-07-02-feat-hermes-guide-lightrag-coaching-skill-plan.md
+  s_bbdd8a165000c5::t_81013120431f26 15
+  s_bbdd8a165000c5::t_761d3c886432b0 128
+  s_bbdd8a165000c5::t_3e138370b59a2e 7,12-14,16-36,55,59,61-66,73-75,87-96,98,102-127,129-171,173,175,197-243,246-252,256-260,263-271,280,284-286,288,292-299,304,306-308,314-340,345-349,354,364-426,428,430-434,437-446,455,462,464-465,472-485,493-512,519,525,527,529-530,533,561,564,567,575-582,591-628,635,639,666-673
+  s_bbdd8a165000c5::t_f2ac51df9f61e7 486-492
+  s_bbdd8a165000c5::t_0ca1ab34e7736c 521-524,528,531-532,534,536-557
+  s_bbdd8a165000c5::t_0977c5ea08c603 520
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1641c6d439bd8328d9b4fb39ed75139c7fa47336",
+  "prompts": {},
+  "sessions": {
+    "s_bbdd8a165000c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35ee987f-d405-4aa2-9308-09cf440d52bb",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
