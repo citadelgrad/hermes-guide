@@ -1,0 +1,46 @@
+docs/deploy.md
+  s_f2956b24bbca01::t_6e53334f2cb2ae 89-91,93
+pipeline/stages/fetch_skills_readme.py
+  s_f2956b24bbca01::t_eb4efa494f4a29 8
+  s_f2956b24bbca01::t_5bd88559e6e207 15
+.gitignore
+  s_f2956b24bbca01::t_b6ce5b4f1f6310 10
+skill/guide.md
+  s_f2956b24bbca01::t_be33aadb9e42a1 80-92,97,103,111
+backend/main.py
+  s_f2956b24bbca01::t_f9cbc813a11369 39
+  s_f2956b24bbca01::t_21271d5922f5ab 228-229
+  s_f2956b24bbca01::t_52c0a211e8a8c6 76
+  s_f2956b24bbca01::t_b6c9656a9394eb 178
+  s_f2956b24bbca01::t_4d67a7525695f8 219-224
+backend/Dockerfile
+  s_f2956b24bbca01::t_2801ed0f6a0d8b 4-5
+backend/fly.toml
+  s_f2956b24bbca01::t_725fb7ce6b8d8c 23
+docker-compose.yml
+  s_f2956b24bbca01::t_474d0c9973be92 9
+backend/pyproject.toml
+  s_f2956b24bbca01::t_3a525ed9927430 9
+Makefile
+  s_f2956b24bbca01::t_36cf9e310245ad 1-8,11
+backend/uv.lock
+  s_f2956b24bbca01::t_7d2479159cdecd 1-1933
+skill/v1/guide.md
+  s_f2956b24bbca01::t_bfa35552adf0b0 80-92,97,103,111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c5cfa9f507a8d23c472b3f48419f778e2eebc17b",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
