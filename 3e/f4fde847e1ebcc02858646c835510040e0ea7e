@@ -1,0 +1,19 @@
+pipeline/stages/fetch_skills_readme.py
+  s_f2956b24bbca01::t_6d7a6d00078050 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "3ef4fde847e1ebcc02858646c835510040e0ea7e",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
