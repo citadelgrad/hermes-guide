@@ -86,8 +86,11 @@ After first successful deploy, run the ingestion pipelines against production:
 
 ```bash
 # Export production URL and admin token
+# NOTE: Fly redacts secret values — fly secrets list only shows names, not values.
+# Retrieve HERMES_GUIDE_ADMIN_TOKEN from wherever you stored it when you ran
+# `fly secrets set` (password manager, 1Password, .envrc backup, etc.)
 export HERMES_GUIDE_URL="https://hermes-guide.fly.dev"
-export HERMES_GUIDE_ADMIN_TOKEN="$(fly secrets list --json | jq -r '.[] | select(.name=="HERMES_GUIDE_ADMIN_TOKEN") | .value' 2>/dev/null || echo 'get from fly secrets')"
+export HERMES_GUIDE_ADMIN_TOKEN="<your-admin-token>"
 
 # Run docs pipeline
 python pipeline/run-docs-pipeline.py

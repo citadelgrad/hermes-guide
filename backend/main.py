@@ -17,7 +17,6 @@ from slowapi.util import get_remote_address
 # Configure structlog — never log "soul_md" or "content" keys
 structlog.configure(
     processors=[
-        structlog.processors.filter_by_level,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.dev.ConsoleRenderer(),
@@ -37,7 +36,7 @@ from lightrag.llm.openai import openai_complete_if_cache, openai_embed
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
-async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs):
+async def llm_model_func(prompt, system_prompt=None, history_messages=None, **kwargs):
     return await openai_complete_if_cache(
         "gpt-4o-mini",
         prompt,
@@ -74,7 +73,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     recommendations: list[dict]
-    graph_nodes_used: int
+    context_lines: int
     query_mode: str
 
 
@@ -176,7 +175,7 @@ are missing or weak, and what are the highest-impact next actions?"""
 
     return QueryResponse(
         recommendations=recommendations,
-        graph_nodes_used=len(context.split("\n")) if context else 0,
+        context_lines=len(context.split("\n")) if context else 0,
         query_mode="mix",
     )
 
@@ -217,11 +216,16 @@ async def _run_ingest(text: str, source_url: str):
     except Exception:
         pass  # doc_status API may vary by LightRAG version
 
-    await rag.ainsert(text)
-    logger.info("ingested", source_url=source_url)
+    try:
+        await rag.ainsert(text)
+        logger.info("ingested", source_url=source_url)
+    except Exception as e:
+        logger.error("ingest_failed", source_url=source_url, error=str(e))
+        raise
 
 
 @app.post("/ingest", status_code=202, dependencies=[Depends(require_admin_token)])
-async def ingest(payload: IngestRequest, background_tasks: BackgroundTasks):
+@limiter.limit("30/minute")
+async def ingest(request: Request, payload: IngestRequest, background_tasks: BackgroundTasks):
     background_tasks.add_task(_run_ingest, payload.text, payload.source_url)
     return {"status": "accepted", "source_url": payload.source_url}

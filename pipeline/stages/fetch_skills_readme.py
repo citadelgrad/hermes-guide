@@ -5,12 +5,14 @@ Pin to a specific commit SHA for reproducibility.
 """
 import json, requests, sys
 from pathlib import Path
+from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 # Pin to a known commit (update this periodically, not on every run)
 REPO = "ZeroPointRepo/awesome-hermes-skills"
 # Use HEAD of main for now; pin after first successful run
 COMMIT_SHA = None  # Will use default branch if None
 
+@retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=1, max=10))
 def fetch_readme(repo: str, commit_sha: str | None = None) -> str:
     if commit_sha:
         url = f"https://raw.githubusercontent.com/{repo}/{commit_sha}/README.md"

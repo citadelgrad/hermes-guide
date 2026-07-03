@@ -11,12 +11,6 @@ metadata:
     tags: [coaching, setup, soul-md, skills, onboarding, productivity]
     category: productivity
     requires_toolsets: [terminal]
-    config:
-      - key: guide.max_results
-        description: Number of recommendations to return
-        default: "5"
-        prompt: "Max recommendations"
-
 required_environment_variables:
   - name: HERMES_GUIDE_URL
     prompt: "hermes-guide API URL"
@@ -83,18 +77,30 @@ Wait for their response. Store it as `USER_GOAL`. Do not continue until they ans
 
 ## Step 4: Build the API payload using jq
 
-CRITICAL: You must use `jq -n --arg` to construct the JSON payload. Do not use string interpolation, heredocs, or printf to build JSON. SOUL.md content may contain newlines, backticks, single quotes, and double quotes — only jq handles these safely.
+CRITICAL: You must use `jq -n --arg` to construct the JSON payload. Do not use string interpolation or printf to build JSON. SOUL.md content may contain newlines, backticks, single quotes, and double quotes — only jq handles these safely.
 
-Run:
+**First**, write the user's goal to a tempfile using a heredoc. This sidesteps shell quoting issues — if the goal contains double quotes, a plain shell assignment like `GOAL="..."` breaks, but a quoted-delimiter heredoc does not. Replace `PASTE_GOAL_TEXT_HERE` with the exact goal text from Step 3:
+
+```bash
+cat > /tmp/hermes_guide_goal.txt <<'___GOAL___'
+PASTE_GOAL_TEXT_HERE
+___GOAL___
+```
+
+The quoted delimiter `'___GOAL___'` prevents any shell expansion in the body, so the text is written verbatim regardless of quotes or special characters.
+
+**Then** assemble the payload:
+
 ```bash
 SOUL=$(cat ~/.hermes/soul.md 2>/dev/null || echo "")
 SKILLS=$(ls ~/.hermes/skills/ 2>/dev/null | tr '\n' ',' | sed 's/,$//')
+GOAL=$(cat /tmp/hermes_guide_goal.txt)
 MAX=${HERMES_GUIDE_MAX_RESULTS:-5}
 
 PAYLOAD=$(jq -n \
   --arg soul   "$SOUL" \
   --arg skills "$SKILLS" \
-  --arg goal   "$USER_GOAL" \
+  --arg goal   "$GOAL" \
   --argjson max "$MAX" \
   '{soul_md: $soul,
     skills_list: ($skills | split(",") | map(select(length > 0))),
@@ -102,7 +108,7 @@ PAYLOAD=$(jq -n \
     max_results: $max}')
 ```
 
-Substitute `$USER_GOAL` with the actual goal text the user provided in Step 3. The resulting `$PAYLOAD` is a valid JSON object ready to POST.
+The resulting `$PAYLOAD` is a valid JSON object ready to POST.
 
 ---
 
