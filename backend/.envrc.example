@@ -1,0 +1,7 @@
+export HERMES_GUIDE_QUERY_TOKEN="change-me-query-token"
+export HERMES_GUIDE_ADMIN_TOKEN="change-me-admin-token"
+export OPENAI_API_KEY="sk-..."
+export LIGHTRAG_DATA_DIR="./data"
+export EMBEDDING_RATE_LIMIT_DELAY=0
+export MAX_ASYNC=2
+export MAX_PARALLEL_INSERT=2

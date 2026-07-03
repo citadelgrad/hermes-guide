@@ -1,0 +1,20 @@
+name: hermes-skills-ingestion
+description: Fetch the awesome-hermes-skills catalog, parse 258+ skill entries, and ingest into the hermes-guide LightRAG backend.
+
+stages:
+  - name: fetch-readme
+    run: python pipeline/stages/fetch_skills_readme.py
+    output: pipeline/output/awesome-hermes-skills-readme.md
+
+  - name: parse-skills
+    run: python pipeline/stages/parse_skills.py
+    input: pipeline/output/awesome-hermes-skills-readme.md
+    output: pipeline/output/skills-catalog.jsonl
+
+  - name: validate-skills
+    run: python pipeline/stages/validate_skills.py
+    input: pipeline/output/skills-catalog.jsonl
+
+  - name: ingest-skills
+    run: python pipeline/stages/ingest_skills.py
+    input: pipeline/output/skills-batches.jsonl

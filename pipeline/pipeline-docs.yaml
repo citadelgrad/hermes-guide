@@ -1,0 +1,20 @@
+name: hermes-docs-ingestion
+description: Crawl official Hermes Agent docs, convert to markdown, and ingest into the hermes-guide LightRAG backend.
+
+stages:
+  - name: discover-urls
+    run: python pipeline/stages/discover_urls.py
+    output: pipeline/output/urls.json
+
+  - name: fetch-docs
+    run: python pipeline/stages/fetch_docs.py
+    input: pipeline/output/urls.json
+    output: pipeline/output/docs.jsonl
+
+  - name: validate-docs
+    run: python pipeline/stages/validate_docs.py
+    input: pipeline/output/docs.jsonl
+
+  - name: ingest-docs
+    run: python pipeline/stages/ingest_docs.py
+    input: pipeline/output/docs.jsonl
