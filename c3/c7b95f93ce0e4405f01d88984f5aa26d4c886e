@@ -1,0 +1,19 @@
+research.md
+  s_bbdd8a165000c5::t_fbd2647ecda3d5 1-96
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "c3c7b95f93ce0e4405f01d88984f5aa26d4c886e",
+  "prompts": {},
+  "sessions": {
+    "s_bbdd8a165000c5": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "35ee987f-d405-4aa2-9308-09cf440d52bb",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
