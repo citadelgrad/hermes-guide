@@ -1,0 +1,61 @@
+pipeline/pipeline-docs.yaml
+  s_f2956b24bbca01::t_eef5a56bcf3fb8 1-20
+pipeline/stages/fetch_docs.py
+  s_f2956b24bbca01::t_f9ebb787102e7c 1-59
+pipeline/stages/discover_urls.py
+  s_f2956b24bbca01::t_014aa281509c96 1-39
+seed-data/soul-examples/coding-agent-junior.md
+  s_f2956b24bbca01::t_6d97ecf946979a 1-25
+seed-data/soul-examples/teacher-educator.md
+  s_f2956b24bbca01::t_a9be8262673fd9 1-26
+seed-data/soul-examples/founder-cto.md
+  s_f2956b24bbca01::t_c220fc647c170b 1-25
+seed-data/soul-examples/research-agent-market.md
+  s_f2956b24bbca01::t_b7e5715e95cb3d 1-25
+pipeline/stages/ingest_docs.py
+  s_f2956b24bbca01::t_8efa2ebd3783bd 1-59
+seed-data/soul-examples/product-manager.md
+  s_f2956b24bbca01::t_ef479029b1fd96 1-25
+seed-data/soul-examples/research-agent-academic.md
+  s_f2956b24bbca01::t_7438db0505cd6d 1-25
+seed-data/soul-examples/coding-agent-senior.md
+  s_f2956b24bbca01::t_7f6db112c05040 1-24
+seed-data/soul-examples/creative-writing-novelist.md
+  s_f2956b24bbca01::t_694137ae81dab2 1-25
+pipeline/requirements-pipeline.txt
+  s_f2956b24bbca01::t_92fcc6501c1aa1 1-4
+seed-data/soul-examples/business-automation-ops.md
+  s_f2956b24bbca01::t_9d9d856ad49664 1-25
+seed-data/soul-examples/personal-assistant-health.md
+  s_f2956b24bbca01::t_998c943281cc6a 1-26
+seed-data/soul-examples/customer-success-manager.md
+  s_f2956b24bbca01::t_a86685ac7ec36f 1-25
+seed-data/soul-examples/devops-engineer.md
+  s_f2956b24bbca01::t_c22c46567b0601 1-26
+seed-data/soul-examples/personal-assistant-calendar.md
+  s_f2956b24bbca01::t_b73ed32e8af110 1-25
+seed-data/soul-examples/data-analysis-analyst.md
+  s_f2956b24bbca01::t_b0331a96bc5ce6 1-25
+seed-data/soul-examples/indie-hacker-solo.md
+  s_f2956b24bbca01::t_4d193d1061bf22 1-25
+pipeline/run-docs-pipeline.py
+  s_f2956b24bbca01::t_fdca7d773506f0 1-33
+pipeline/stages/validate_docs.py
+  s_f2956b24bbca01::t_da5220efe850b7 1-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2b0eeb52f02e910820b10e84a28fe2ce55d7d814",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
