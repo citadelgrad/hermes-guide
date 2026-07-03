@@ -1,0 +1,24 @@
+backend/fly.toml
+  s_f2956b24bbca01::t_ffbfa7603754ad 1-33
+docs/deploy.md
+  s_f2956b24bbca01::t_cfeb852dfadd64 1-114
+Makefile
+  s_f2956b24bbca01::t_8f4adf4a05fb97 1
+  s_f2956b24bbca01::t_a5ce708717dd41 17-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "eade39096e74d06a7a37768605725bd356a6f092",
+  "prompts": {},
+  "sessions": {
+    "s_f2956b24bbca01": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "03756afa-6445-473b-9bc7-db523f42d359",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
