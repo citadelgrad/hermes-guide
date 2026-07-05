@@ -1,0 +1,60 @@
+skill/v1/guide.md
+  s_068f8bfcdf31e2::t_29b67073615878 29,33,36,38,40
+scripts/seed.sh
+  s_068f8bfcdf31e2::t_90b1bfe90378be 1-10,12-15,17-24,26-27
+  s_068f8bfcdf31e2::t_3758f6cedb652d 11
+  s_068f8bfcdf31e2::t_7429571a2ae60a 16
+  s_068f8bfcdf31e2::t_550b85b86b744d 25
+  s_068f8bfcdf31e2::t_2b6fbc01cbe182 28-30
+docs/deploy.md
+  s_068f8bfcdf31e2::t_271b54184e7b64 109-111
+  s_068f8bfcdf31e2::t_348afaccdbced2 86-87
+  s_068f8bfcdf31e2::t_d52b31154f7294 64
+  s_068f8bfcdf31e2::t_d225f7557c4030 37
+  s_068f8bfcdf31e2::t_70e86a33bd016e 74-75
+README.md
+  s_068f8bfcdf31e2::t_8d538602387238 98
+  s_068f8bfcdf31e2::t_27e4f46135302f 15,17-21
+skill/guide.md
+  s_068f8bfcdf31e2::t_114db78cf04955 29
+  s_068f8bfcdf31e2::t_33f165291842e1 33,36,38,40
+backend/pyproject.toml
+  s_068f8bfcdf31e2::t_29e4a031b16fdf 9
+scripts/provision.sh
+  s_068f8bfcdf31e2::t_406a8f0ea7378f 1-3,5-8,12,14-18,20-23,25-26,28-29,37-39,41-50
+  s_068f8bfcdf31e2::t_8d7d7b3de1ee0b 19
+  s_068f8bfcdf31e2::t_a8c4c71bc31725 31-36
+  s_068f8bfcdf31e2::t_e978037978336c 51
+  s_068f8bfcdf31e2::t_6bf7069746ec4a 4,13,40
+  s_068f8bfcdf31e2::t_b62ba35185efac 24
+  s_068f8bfcdf31e2::t_eb514fee0501c0 9-11
+  s_068f8bfcdf31e2::t_bac00b3fe15adf 27,30
+backend/fly.toml
+  s_068f8bfcdf31e2::t_e70b20d28e0652 2
+  s_068f8bfcdf31e2::t_bc984810ef8d3e 10
+Makefile
+  s_068f8bfcdf31e2::t_dca64b38688799 26-31,33
+  s_068f8bfcdf31e2::t_820f5bb292be30 1
+backend/main.py
+  s_068f8bfcdf31e2::t_05510fba0113d5 143
+  s_068f8bfcdf31e2::t_5fcb2918ff66f8 142
+  s_068f8bfcdf31e2::t_1c024a6ea1d018 35,40-41,49
+backend/uv.lock
+  s_068f8bfcdf31e2::t_8dcd380261651f 614,626
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "81622b44a91fc80f47402ab1aee273181030e23a",
+  "prompts": {},
+  "sessions": {
+    "s_068f8bfcdf31e2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1125aa24-ca03-43af-8442-79dcb8667f43",
+        "model": "claude-sonnet-4-6"
+      },
+      "human_author": "Scott Nixon <citadelgrad@gmail.com>"
+    }
+  }
+}
