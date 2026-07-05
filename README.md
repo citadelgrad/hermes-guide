@@ -96,6 +96,7 @@ git clone https://github.com/citadelgrad/hermes-guide
 cd hermes-guide
 cp backend/.envrc.example .envrc
 # Edit .envrc — set GEMINI_API_KEY and HERMES_GUIDE_ADMIN_TOKEN
+# Optional but recommended: set JINA_API_KEY to enable LightRAG reranking
 make up
 ```
 

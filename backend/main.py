@@ -3,6 +3,7 @@ import os
 import re
 import secrets
 from contextlib import asynccontextmanager
+from functools import partial
 
 import structlog
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
@@ -29,10 +30,12 @@ logger = structlog.get_logger()
 ADMIN_TOKEN = os.environ["HERMES_GUIDE_ADMIN_TOKEN"]
 DATA_DIR = os.environ.get("LIGHTRAG_DATA_DIR", "/data")
 MAX_ASYNC = int(os.environ.get("MAX_ASYNC", "2"))
+DEFAULT_RERANK_MODEL = "jina-reranker-v3"
 
 # LightRAG setup
 from lightrag import LightRAG, QueryParam
 from lightrag.llm.gemini import gemini_complete_if_cache, gemini_embed
+from lightrag.rerank import ali_rerank, cohere_rerank, jina_rerank
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
@@ -48,9 +51,79 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=None, **kw
 async def embedding_func(texts: list[str]) -> np.ndarray:
     return await gemini_embed(texts, model="gemini-embedding-001", embedding_dim=1536)
 
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, str(default)))
+    except ValueError:
+        logger.warning("invalid_integer_env", name=name, value=os.environ.get(name), default=default)
+        return default
+
+
+def _configured_rerank_provider() -> str | None:
+    setting = os.environ.get("RERANK_ENABLED", "auto").strip().lower()
+    if setting in {"0", "false", "no", "off"}:
+        return None
+
+    provider = os.environ.get("RERANK_PROVIDER", "").strip().lower()
+    if provider:
+        return provider
+
+    if os.environ.get("JINA_API_KEY"):
+        return "jina"
+    if os.environ.get("COHERE_API_KEY"):
+        return "cohere"
+    if os.environ.get("DASHSCOPE_API_KEY"):
+        return "aliyun"
+    return None
+
+
+def _build_rerank_model_func():
+    provider = _configured_rerank_provider()
+    if provider == "jina":
+        return partial(
+            jina_rerank,
+            model=os.environ.get("RERANK_MODEL", DEFAULT_RERANK_MODEL),
+            base_url=os.environ.get("RERANK_BASE_URL", "https://api.jina.ai/v1/rerank"),
+        )
+    if provider == "cohere":
+        return partial(
+            cohere_rerank,
+            model=os.environ.get("RERANK_MODEL", "rerank-v3.5"),
+            base_url=os.environ.get("RERANK_BASE_URL", "https://api.cohere.com/v2/rerank"),
+        )
+    if provider in {"ali", "aliyun", "dashscope"}:
+        return partial(
+            ali_rerank,
+            model=os.environ.get("RERANK_MODEL", "gte-rerank-v2"),
+            base_url=os.environ.get(
+                "RERANK_BASE_URL",
+                "https://dashscope.aliyuncs.com/api/v1/services/rerank/text-rerank/text-rerank",
+            ),
+        )
+    if provider:
+        logger.warning("unsupported_rerank_provider", provider=provider)
+    return None
+
+
+rerank_model_func = _build_rerank_model_func()
+
+
+def _rerank_enabled() -> bool:
+    return rerank_model_func is not None
+
+
+def _related_chunk_number() -> int:
+    if _rerank_enabled():
+        return _env_int("RERANK_RELATED_CHUNK_NUMBER", 1)
+    return _env_int("RELATED_CHUNK_NUMBER", 5)
+
 rag = LightRAG(
     working_dir=DATA_DIR,
     llm_model_func=llm_model_func,
+    rerank_model_func=rerank_model_func,
+    rerank_model_max_async=_env_int("MAX_ASYNC_RERANK", 1 if _rerank_enabled() else MAX_ASYNC),
+    related_chunk_number=_related_chunk_number(),
     embedding_func=EmbeddingFunc(
         embedding_dim=1536,
         max_token_size=8192,
@@ -146,13 +219,7 @@ async def query(request: Request, payload: QueryRequest):
     contexts = []
 
     for intent in _intent_queries_from_payload(payload, soul_content):
-        param = QueryParam(
-            mode="mix",                # official default as of PR #3287 (June 2026)
-            only_need_context=True,    # eliminates LightRAG's internal LLM call; cuts latency to 500-800ms
-            top_k=max(3, min(payload.max_results, 8)),
-            hl_keywords=["soul.md", "skills", "hermes", "configuration", "setup", *intent["keywords"][:8]],
-            ll_keywords=intent["keywords"][:10],
-        )
+        param = _query_param_for_intent(payload, intent)
         context = await rag.aquery(intent["query"], param=param)
         contexts.append({"intent": intent["intent"], "context": context})
 
@@ -185,6 +252,51 @@ def _keywords_from_text(text: str) -> list[str]:
     return keywords
 
 
+def _query_param_for_intent(payload: QueryRequest, intent: dict) -> QueryParam:
+    rerank_enabled = _rerank_enabled()
+    return QueryParam(
+        mode="mix",                # official default as of PR #3287 (June 2026)
+        only_need_context=True,    # eliminates LightRAG's internal LLM call; cuts latency to 500-800ms
+        enable_rerank=rerank_enabled,
+        top_k=_query_top_k(payload, rerank_enabled),
+        chunk_top_k=_query_chunk_top_k(rerank_enabled),
+        max_entity_tokens=_query_max_entity_tokens(rerank_enabled),
+        max_relation_tokens=_query_max_relation_tokens(rerank_enabled),
+        max_total_tokens=_query_max_total_tokens(rerank_enabled),
+        hl_keywords=["soul.md", "skills", "hermes", "configuration", "setup", *intent["keywords"][:8]],
+        ll_keywords=intent["keywords"][:10],
+    )
+
+
+def _query_top_k(payload: QueryRequest, rerank_enabled: bool) -> int:
+    default = 5 if rerank_enabled else 8
+    return max(3, min(payload.max_results, _env_int("RERANK_TOP_K", default)))
+
+
+def _query_chunk_top_k(rerank_enabled: bool) -> int:
+    if rerank_enabled:
+        return _env_int("RERANK_CHUNK_TOP_K", 6)
+    return _env_int("CHUNK_TOP_K", 20)
+
+
+def _query_max_entity_tokens(rerank_enabled: bool) -> int:
+    if rerank_enabled:
+        return _env_int("RERANK_MAX_ENTITY_TOKENS", 2500)
+    return _env_int("MAX_ENTITY_TOKENS", 6000)
+
+
+def _query_max_relation_tokens(rerank_enabled: bool) -> int:
+    if rerank_enabled:
+        return _env_int("RERANK_MAX_RELATION_TOKENS", 3500)
+    return _env_int("MAX_RELATION_TOKENS", 8000)
+
+
+def _query_max_total_tokens(rerank_enabled: bool) -> int:
+    if rerank_enabled:
+        return _env_int("RERANK_MAX_TOTAL_TOKENS", 9000)
+    return _env_int("MAX_TOTAL_TOKENS", 30000)
+
+
 def _intent_queries_from_payload(payload: QueryRequest, soul_content: str) -> list[dict]:
     """Build one broad query plus per-intent queries so mixed goals do not collapse to one topic."""
     soul_block = f"SOUL.md content:\n{soul_content}" if soul_content else ""
@@ -213,17 +325,18 @@ Full user goal: {goal}
 For this specific intent, what Hermes skills, documentation, or setup guidance are relevant?""",
         })
 
-    broad_keywords = _expand_keywords(_keywords_from_text(goal) + skills)
-    queries.append({
-        "intent": "combined goal",
-        "keywords": broad_keywords,
-        "query": f"""User goal: {goal}
+    if len(phrases) <= 2:
+        broad_keywords = _expand_keywords(_keywords_from_text(goal) + skills)
+        queries.append({
+            "intent": "combined goal",
+            "keywords": broad_keywords,
+            "query": f"""User goal: {goal}
 Retrieval aliases: {', '.join(broad_keywords)}
 {base_context}
 
 Given this full setup, what specific skills should they add, what SOUL.md sections
 are missing or weak, and what are the highest-impact next actions?""",
-    })
+        })
 
     return queries[:5]
 

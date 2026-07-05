@@ -1,0 +1,137 @@
+{
+  "current_node_id": "close_task",
+  "completed_nodes": [
+    "start",
+    "pick_task",
+    "investigate",
+    "implement",
+    "run_tests",
+    "verify"
+  ],
+  "node_outcomes": {
+    "pick_task": {
+      "status": "success",
+      "preferred_label": "MORE",
+      "suggested_next_ids": [],
+      "context_updates": {
+        "pick_task.completed": true,
+        "pick_task.result": "Task claimed and prepared. hermes-guide-qq1.1 is now in_progress. This is the first task in the sequence—curating the 14 eval cases that form the ground truth for retrieval quality testing.\n\nMORE",
+        "pick_task.turns": 6,
+        "pick_task.provider": "Claude Code",
+        "pick_task.label": "MORE",
+        "pick_task.cost_usd": 0.1021079
+      },
+      "notes": "Task claimed and prepared. hermes-guide-qq1.1 is now in_progress. This is the first task in the sequence—curating the 14 eval cases that form the ground truth for retrieval quality testing.\n\nMORE",
+      "failure_reason": null
+    },
+    "investigate": {
+      "status": "success",
+      "preferred_label": null,
+      "suggested_next_ids": [],
+      "context_updates": {
+        "investigate.provider": "Claude Code",
+        "investigate.completed": true,
+        "investigate.result": "Done. `evals/cases/hermes_guide_retrieval.jsonl` created with 14 cases — all acceptance criteria pass:\n\n- 14 lines, all valid JSON (`jq -c .` clean)\n- All 14 category types covered (coding, research, media, productivity, devops, mixed×2, soul variants×3, negative)\n- `no_soul_beginner_setup` has `soul_md: \"\"`\n- `negative_coding_no_calendar` has `forbidden_terms: [\"calendar\", \"email triage\"]`\n- Mixed-intent cases (`mixed_*`) have `max_latency_ms: 7000`; all others `5000`\n- IDs unique, snake_case\n\nTask `hermes-guide-qq1.1` closed. `hermes-guide-qq1.2` (fixture responses JSONL) is now unblocked.",
+        "investigate.cost_usd": 0.6550989,
+        "investigate.turns": 15
+      },
+      "notes": "Done. `evals/cases/hermes_guide_retrieval.jsonl` created with 14 cases — all acceptance criteria pass:\n\n- 14 lines, all valid JSON (`jq -c .` clean)\n- All 14 category types covered (coding, research, media, productivity, devops, mixed×2, soul variants×3, negative)\n- `no_soul_beginner_setup` has `soul_md: \"\"`\n- `negative_coding_no_calendar` has `forbidden_terms: [\"calendar\", \"email triage\"]`\n- Mixed-intent cases (`mixed_*`) have `max_latency_ms: 7000`; all others `5000`\n- IDs unique, snake_case\n\nTask `hermes-guide-qq1.1` closed. `hermes-guide-qq1.2` (fixture responses JSONL) is now unblocked.",
+      "failure_reason": null
+    },
+    "implement": {
+      "status": "success",
+      "preferred_label": null,
+      "suggested_next_ids": [],
+      "context_updates": {
+        "implement.provider": "Claude Code",
+        "implement.turns": 11,
+        "implement.completed": true,
+        "implement.result": "`evals/fixtures/sample_responses.jsonl` created with 14 fixtures. All acceptance criteria verified:\n\n- 14 lines, all valid JSON, IDs match cases exactly\n- 9 PASS fixtures (coding, research, media, productivity, mixed-intent cases)\n- 5 FAIL fixtures covering every required failure mode:\n  - `thin_soul_workflow_gaps` — missing expected term \"skills\"\n  - `negative_coding_no_calendar` — forbidden term \"calendar\" present\n  - `strong_soul_goal_specific` — `context_lines: 7` below minimum of 10\n  - `no_soul_beginner_setup` — `status: 503`\n  - `devops_deploy_troubleshoot` — `recommendations: []`\n\n`hermes-guide-qq1.3` (runner unit tests, TDD red phase) is now unblocked.",
+        "implement.cost_usd": 0.5423295
+      },
+      "notes": "`evals/fixtures/sample_responses.jsonl` created with 14 fixtures. All acceptance criteria verified:\n\n- 14 lines, all valid JSON, IDs match cases exactly\n- 9 PASS fixtures (coding, research, media, productivity, mixed-intent cases)\n- 5 FAIL fixtures covering every required failure mode:\n  - `thin_soul_workflow_gaps` — missing expected term \"skills\"\n  - `negative_coding_no_calendar` — forbidden term \"calendar\" present\n  - `strong_soul_goal_specific` — `context_lines: 7` below minimum of 10\n  - `no_soul_beginner_setup` — `status: 503`\n  - `devops_deploy_troubleshoot` — `recommendations: []`\n\n`hermes-guide-qq1.3` (runner unit tests, TDD red phase) is now unblocked.",
+      "failure_reason": null
+    },
+    "start": {
+      "status": "success",
+      "preferred_label": null,
+      "suggested_next_ids": [],
+      "context_updates": {},
+      "notes": "Pipeline started",
+      "failure_reason": null
+    },
+    "verify": {
+      "status": "success",
+      "preferred_label": "PASS",
+      "suggested_next_ids": [],
+      "context_updates": {
+        "verify.provider": "Claude Code",
+        "verify.cost_usd": 0.1883505,
+        "verify.turns": 7,
+        "verify.completed": true,
+        "verify.label": "PASS",
+        "verify.result": "The `no_soul_beginner_setup` soul_md shows an empty line (empty string) — correct.\n\nAll acceptance criteria check out:\n\n- **14 cases**: ✅ exactly 14 valid JSON lines\n- **All 14 category IDs present**: ✅ all match spec\n- **`negative_coding_no_calendar` forbidden_terms**: ✅ `[\"calendar\", \"email triage\"]`\n- **`no_soul_beginner_setup` soul_md**: ✅ empty string\n- **Mixed-intent latency 7000ms**: ✅ `mixed_code_tdd_youtube` and `mixed_research_writing_skills`\n- **Single-intent latency 5000ms**: ✅ coding, research, media, productivity cases\n- **Fixtures file**: ✅ 14 lines, all valid JSON\n- **Tests**: ✅ 11 passed, 1 skipped (live test requires env flag — expected)\n- **conftest.py + pytest dev dep**: ✅ setup infrastructure in place\n\nPASS"
+      },
+      "notes": "The `no_soul_beginner_setup` soul_md shows an empty line (empty string) — correct.\n\nAll acceptance criteria check out:\n\n- **14 cases**: ✅ exactly 14 valid JSON lines\n- **All 14 category IDs present**: ✅ all match spec\n- **`negative_coding_no_calendar` forbidden_terms**: ✅ `[\"calendar\", \"email triage\"]`\n- **`no_soul_beginner_setup` soul_md**: ✅ empty string\n- **Mixed-intent latency 7000ms**: ✅ `mixed_code_tdd_youtube` and `mixed_research_writing_skills`\n- **Single-intent latency 5000ms**: ✅ coding, research, media, productivity cases\n- **Fixtures file**: ✅ 14 lines, all valid JSON\n- **Tests**: ✅ 11 passed, 1 skipped (live test requires env flag — expected)\n- **conftest.py + pytest dev dep**: ✅ setup infrastructure in place\n\nPASS",
+      "failure_reason": null
+    },
+    "run_tests": {
+      "status": "success",
+      "preferred_label": null,
+      "suggested_next_ids": [],
+      "context_updates": {
+        "run_tests.completed": true,
+        "run_tests.cost_usd": 0.6716415,
+        "run_tests.turns": 29,
+        "run_tests.provider": "Claude Code",
+        "run_tests.result": "All tests green. Summary of what was done:\n\n**11 passed, 1 skipped** across both test suites (`test_mixed_intent_retrieval.py` and `test_skill_user_experience.py`).\n\nTwo fixes were needed to get tests running:\n1. `conftest.py` added at repo root — inserts project root on `sys.path` so `import backend.main` resolves without manual `PYTHONPATH`\n2. `pytest` added as dev dep in `backend/pyproject.toml` — backend's `.venv` is the runtime that has `lightrag-hku` and all other dependencies\n\nResults written to `.pas/test-results.md`."
+      },
+      "notes": "All tests green. Summary of what was done:\n\n**11 passed, 1 skipped** across both test suites (`test_mixed_intent_retrieval.py` and `test_skill_user_experience.py`).\n\nTwo fixes were needed to get tests running:\n1. `conftest.py` added at repo root — inserts project root on `sys.path` so `import backend.main` resolves without manual `PYTHONPATH`\n2. `pytest` added as dev dep in `backend/pyproject.toml` — backend's `.venv` is the runtime that has `lightrag-hku` and all other dependencies\n\nResults written to `.pas/test-results.md`.",
+      "failure_reason": null
+    }
+  },
+  "context_snapshot": {
+    "investigate.provider": "Claude Code",
+    "workdir": "/Volumes/qwiizlab/projects/hermes-guide",
+    "implement.completed": true,
+    "goal": "Implement all child tasks of epic hermes-guide-qq1: feat: LightRAG Retrieval Evaluation Harness. Add a deterministic retrieval evaluation harness for hermes-guide.\n\n## Why This Exists\n\nhermes-guide has one live smoke test that checks a handful of words. A deploy can silently degrade Hermes coaching quality â bad retrieval behind HTTP 200 â with no observable signal. This epic adds a repeatable benchmark that catches regressions before they reach users.\n\n## Scope\n\n- Curated JSONL eval cases (14 initial: coding, research, media, productivity, DevOps, mixed-intent, SOUL.md variants, negative relevance)\n- Fixture responses for CI-safe runner testing (no live LightRAG calls required)\n- CLI runner: calls /query, scores keyword/structural checks, exits nonzero on failure\n- Unit tests for runner scoring logic (TDD approach)\n- Makefile targets: make eval / make eval-live / make eval-fixture / make test\n- GET /config endpoint exposing non-secret retrieval configuration\n- README eval section\n\n## Out of Scope (Phase 1)\n\n- LLM judge / answer-quality scoring\n- Running live evals on every CI push\n- Rerank benchmark comparison tooling\n\n## Plan\n\ndocs/plans/2026-07-05-feat-lightrag-retrieval-eval-harness-plan.md",
+    "run_tests.turns": 29,
+    "pick_task.result": "Task claimed and prepared. hermes-guide-qq1.1 is now in_progress. This is the first task in the sequence—curating the 14 eval cases that form the ground truth for retrieval quality testing.\n\nMORE",
+    "label": "Process all tasks in an epic",
+    "investigate.result": "Done. `evals/cases/hermes_guide_retrieval.jsonl` created with 14 cases — all acceptance criteria pass:\n\n- 14 lines, all valid JSON (`jq -c .` clean)\n- All 14 category types covered (coding, research, media, productivity, devops, mixed×2, soul variants×3, negative)\n- `no_soul_beginner_setup` has `soul_md: \"\"`\n- `negative_coding_no_calendar` has `forbidden_terms: [\"calendar\", \"email triage\"]`\n- Mixed-intent cases (`mixed_*`) have `max_latency_ms: 7000`; all others `5000`\n- IDs unique, snake_case\n\nTask `hermes-guide-qq1.1` closed. `hermes-guide-qq1.2` (fixture responses JSONL) is now unblocked.",
+    "pick_task.provider": "Claude Code",
+    "implement.result": "`evals/fixtures/sample_responses.jsonl` created with 14 fixtures. All acceptance criteria verified:\n\n- 14 lines, all valid JSON, IDs match cases exactly\n- 9 PASS fixtures (coding, research, media, productivity, mixed-intent cases)\n- 5 FAIL fixtures covering every required failure mode:\n  - `thin_soul_workflow_gaps` — missing expected term \"skills\"\n  - `negative_coding_no_calendar` — forbidden term \"calendar\" present\n  - `strong_soul_goal_specific` — `context_lines: 7` below minimum of 10\n  - `no_soul_beginner_setup` — `status: 503`\n  - `devops_deploy_troubleshoot` — `recommendations: []`\n\n`hermes-guide-qq1.3` (runner unit tests, TDD red phase) is now unblocked.",
+    "run_tests.completed": true,
+    "model": "sonnet",
+    "verify.turns": 7,
+    "verify.completed": true,
+    "run_tests.result": "All tests green. Summary of what was done:\n\n**11 passed, 1 skipped** across both test suites (`test_mixed_intent_retrieval.py` and `test_skill_user_experience.py`).\n\nTwo fixes were needed to get tests running:\n1. `conftest.py` added at repo root — inserts project root on `sys.path` so `import backend.main` resolves without manual `PYTHONPATH`\n2. `pytest` added as dev dep in `backend/pyproject.toml` — backend's `.venv` is the runtime that has `lightrag-hku` and all other dependencies\n\nResults written to `.pas/test-results.md`.",
+    "pick_task.cost_usd": 0.1021079,
+    "implement.provider": "Claude Code",
+    "max_budget_usd": 20.0,
+    "pick_task.completed": true,
+    "run_tests.cost_usd": 0.6716415,
+    "verify.label": "PASS",
+    "investigate.completed": true,
+    "investigate.cost_usd": 0.6550989,
+    "outcome": "success",
+    "implement.cost_usd": 0.5423295,
+    "pick_task.turns": 6,
+    "preferred_label": "PASS",
+    "run_tests.provider": "Claude Code",
+    "investigate.turns": 15,
+    "max_steps": 200,
+    "pick_task.label": "MORE",
+    "verify.provider": "Claude Code",
+    "implement.turns": 11,
+    "verify.result": "The `no_soul_beginner_setup` soul_md shows an empty line (empty string) — correct.\n\nAll acceptance criteria check out:\n\n- **14 cases**: ✅ exactly 14 valid JSON lines\n- **All 14 category IDs present**: ✅ all match spec\n- **`negative_coding_no_calendar` forbidden_terms**: ✅ `[\"calendar\", \"email triage\"]`\n- **`no_soul_beginner_setup` soul_md**: ✅ empty string\n- **Mixed-intent latency 7000ms**: ✅ `mixed_code_tdd_youtube` and `mixed_research_writing_skills`\n- **Single-intent latency 5000ms**: ✅ coding, research, media, productivity cases\n- **Fixtures file**: ✅ 14 lines, all valid JSON\n- **Tests**: ✅ 11 passed, 1 skipped (live test requires env flag — expected)\n- **conftest.py + pytest dev dep**: ✅ setup infrastructure in place\n\nPASS",
+    "verify.cost_usd": 0.1883505
+  },
+  "timestamp": "2026-07-05T20:47:41.710217+00:00",
+  "step_count": 6,
+  "total_cost": 2.1595283000000003,
+  "schema_version": 1,
+  "quality_loop_counters": {},
+  "quality_last_footprint": {},
+  "previous_node_id": "verify"
+}

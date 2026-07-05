@@ -2,6 +2,7 @@
 # First-deploy provisioning for hermes-guide on Fly.io.
 # Usage: scripts/provision.sh [region]   (default: dfw)
 # Requires: flyctl authenticated, GEMINI_API_KEY in environment.
+# Optional: JINA_API_KEY enables LightRAG chunk reranking.
 set -euo pipefail
 
 REGION=${1:-dfw}
@@ -35,13 +36,26 @@ ADMIN_TOKEN="$(openssl rand -hex 32)"
 } >> "$ENVRC"
 echo "✓ Tokens written to .envrc"
 
-fly secrets set \
-  HERMES_GUIDE_ADMIN_TOKEN="$ADMIN_TOKEN" \
-  GEMINI_API_KEY="$GEMINI_API_KEY" \
-  LIGHTRAG_DATA_DIR="/data" \
-  EMBEDDING_RATE_LIMIT_DELAY="0" \
-  MAX_ASYNC="2" \
-  -a "$APP"
+SECRETS=(
+  HERMES_GUIDE_ADMIN_TOKEN="$ADMIN_TOKEN"
+  GEMINI_API_KEY="$GEMINI_API_KEY"
+  LIGHTRAG_DATA_DIR="/data"
+  EMBEDDING_RATE_LIMIT_DELAY="0"
+  MAX_ASYNC="2"
+)
+
+if [[ -n "${JINA_API_KEY:-}" ]]; then
+  SECRETS+=(
+    JINA_API_KEY="$JINA_API_KEY"
+    RERANK_PROVIDER="jina"
+    RERANK_MODEL="jina-reranker-v3"
+    RERANK_CHUNK_TOP_K="6"
+    RERANK_RELATED_CHUNK_NUMBER="1"
+    MAX_ASYNC_RERANK="1"
+  )
+fi
+
+fly secrets set "${SECRETS[@]}" -a "$APP"
 
 fly deploy --ha=false -a "$APP"
 

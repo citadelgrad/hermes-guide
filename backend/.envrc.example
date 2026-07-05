@@ -1,7 +1,14 @@
-export HERMES_GUIDE_QUERY_TOKEN="change-me-query-token"
 export HERMES_GUIDE_ADMIN_TOKEN="change-me-admin-token"
-export OPENAI_API_KEY="sk-..."
+export GEMINI_API_KEY="..."
 export LIGHTRAG_DATA_DIR="./data"
 export EMBEDDING_RATE_LIMIT_DELAY=0
 export MAX_ASYNC=2
 export MAX_PARALLEL_INSERT=2
+
+# Optional: enables LightRAG chunk reranking instead of falling back to retrieval order.
+# export JINA_API_KEY="jina_..."
+# export RERANK_PROVIDER="jina"
+# export RERANK_MODEL="jina-reranker-v3"
+# export RERANK_CHUNK_TOP_K=6
+# export RERANK_RELATED_CHUNK_NUMBER=1
+# export MAX_ASYNC_RERANK=1

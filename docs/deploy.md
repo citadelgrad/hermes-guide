@@ -4,7 +4,8 @@
 
 - Fly.io account + CLI installed: `brew install flyctl`
 - Authenticated: `fly auth login`
-- OpenAI API key (for LightRAG embeddings + LLM)
+- Gemini API key (for LightRAG embeddings + LLM)
+- Optional Jina API key (for LightRAG chunk reranking)
 - Working directory: `backend/` inside this repo
 
 ## First Deploy (order matters — do not skip steps)
@@ -35,6 +36,12 @@ When prompted:
 fly secrets set \
   HERMES_GUIDE_ADMIN_TOKEN="$(openssl rand -hex 32)" \
   GEMINI_API_KEY="sk-..." \
+  JINA_API_KEY="jina_..." \
+  RERANK_PROVIDER="jina" \
+  RERANK_MODEL="jina-reranker-v3" \
+  RERANK_CHUNK_TOP_K="6" \
+  RERANK_RELATED_CHUNK_NUMBER="1" \
+  MAX_ASYNC_RERANK="1" \
   LIGHTRAG_DATA_DIR="/data" \
   EMBEDDING_RATE_LIMIT_DELAY="0" \
   MAX_ASYNC="2"
@@ -75,6 +82,7 @@ curl -s -X POST https://hermes-guide.fly.dev/query \
 - [ ] `POST /ingest` with no token -> 403 (graph poisoning prevented)
 - [ ] `POST /ingest` with ADMIN_TOKEN -> 202 (admin ingest works)
 - [ ] `fly secrets list` shows `HERMES_GUIDE_ADMIN_TOKEN` (value redacted — good)
+- [ ] `fly secrets list` shows `JINA_API_KEY` and `RERANK_PROVIDER` if reranking is enabled
 - [ ] `git log -p | grep -i admin_token` returns nothing (token never committed)
 - [ ] `EMBEDDING_RATE_LIMIT_DELAY=0` confirmed in secrets
 
