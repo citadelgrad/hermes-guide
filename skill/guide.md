@@ -16,10 +16,6 @@ required_environment_variables:
     prompt: "hermes-guide API URL"
     help: "Hosted at https://hermes-guide.fly.dev — or self-host: https://github.com/citadelgrad/hermes-guide"
     required_for: "coaching API access"
-  - name: HERMES_GUIDE_QUERY_TOKEN
-    prompt: "Your hermes-guide query token"
-    help: "Get one free at https://github.com/citadelgrad/hermes-guide"
-    required_for: "authentication"
 ---
 
 # Hermes Guide Skill
@@ -30,18 +26,18 @@ When the user invokes `/guide`, follow these six steps exactly.
 
 ## Step 1: Preflight check
 
-Before doing anything else, verify that both `$HERMES_GUIDE_URL` and `$HERMES_GUIDE_QUERY_TOKEN` are set in the environment.
+Before doing anything else, verify that `$HERMES_GUIDE_URL` is set in the environment.
 
 Run:
 ```bash
-echo "URL=${HERMES_GUIDE_URL:-MISSING} TOKEN=${HERMES_GUIDE_QUERY_TOKEN:+SET}${HERMES_GUIDE_QUERY_TOKEN:-MISSING}"
+echo "URL=${HERMES_GUIDE_URL:-MISSING}"
 ```
 
-If either variable is missing or empty, stop immediately and tell the user:
+If the variable is missing or empty, stop immediately and tell the user:
 
-> The `/guide` skill needs `HERMES_GUIDE_URL` and `HERMES_GUIDE_QUERY_TOKEN` configured. Set them in your `.envrc` or export them in your shell. Get a query token at https://github.com/citadelgrad/hermes-guide
+> The `/guide` skill needs `HERMES_GUIDE_URL` configured. Set it in your `.envrc` or export it in your shell. Default: `https://hermes-guide.fly.dev`
 
-Do not proceed to any further step until both variables are confirmed present.
+Do not proceed to any further step until the variable is confirmed present.
 
 ---
 
@@ -117,7 +113,6 @@ The resulting `$PAYLOAD` is a valid JSON object ready to POST.
 Run:
 ```bash
 RESPONSE=$(curl -fsSL -X POST "$HERMES_GUIDE_URL/query" \
-  -H "Authorization: Bearer $HERMES_GUIDE_QUERY_TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
 ```

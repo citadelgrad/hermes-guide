@@ -53,6 +53,65 @@ def parse_markdown_tables(text: str) -> list[dict]:
             if entry.get('name') and len(entry['name']) > 1:
                 skills.append(entry)
 
+    if skills:
+        return skills
+
+    return parse_markdown_bullets(text)
+
+
+def _clean_heading(text: str) -> str:
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'^[^\w\[]+\s*', '', text).strip()
+    return text.lower().replace(' ', '-') or 'general'
+
+
+def parse_markdown_bullets(text: str) -> list[dict]:
+    """Extract skill rows from the current awesome-hermes-skills list format."""
+    skills = []
+    current_category = "general"
+
+    bold_re = re.compile(r'^- \*\*([^*]+)\*\*\s+—\s+(.+)$')
+    link_re = re.compile(r'^- \[([^\]]+)\]\(([^)]+)\)(?: by \[[^\]]+\]\([^)]+\))?\s+—\s+(.+)$')
+    summary_re = re.compile(r'<summary><h3[^>]*>(.*?)</h3></summary>')
+
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        if line.startswith('## '):
+            current_category = _clean_heading(line.removeprefix('## '))
+            continue
+
+        if line.startswith('### '):
+            current_category = _clean_heading(line.removeprefix('### '))
+            continue
+
+        summary_match = summary_re.search(line)
+        if summary_match:
+            current_category = _clean_heading(summary_match.group(1))
+            continue
+
+        match = bold_re.match(line)
+        if match:
+            name, desc = match.groups()
+            skills.append({
+                'name': name.strip(),
+                'description': desc.strip(),
+                'category': current_category,
+            })
+            continue
+
+        match = link_re.match(line)
+        if match:
+            name, url, desc = match.groups()
+            skills.append({
+                'name': name.strip(),
+                'url': url.strip(),
+                'description': desc.strip(),
+                'category': current_category,
+            })
+
     return skills
 
 

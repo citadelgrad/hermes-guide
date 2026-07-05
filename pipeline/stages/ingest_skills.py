@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Ingest skills catalog batches into LightRAG via the hermes-guide backend."""
-import json, os, sys
+import json, os, sys, time
 from pathlib import Path
 
 import requests
@@ -8,6 +8,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 BACKEND_URL = os.environ.get("HERMES_GUIDE_URL", "http://127.0.0.1:7842")
 ADMIN_TOKEN = os.environ["HERMES_GUIDE_ADMIN_TOKEN"]
+INGEST_DELAY_SECONDS = float(os.environ.get("HERMES_GUIDE_INGEST_DELAY_SECONDS", "2.2"))
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=2, max=30))
 def ingest_batch(text: str, source_url: str):
@@ -31,6 +32,7 @@ def main():
         try:
             ingest_batch(batch["text"], batch["source_url"])
             print(f"[{i}/{len(batches)}] ok {batch['category']} ({batch['count']} skills)")
+            time.sleep(INGEST_DELAY_SECONDS)
         except Exception as e:
             print(f"[{i}/{len(batches)}] FAIL {batch['category']}: {e}", file=sys.stderr)
             failed.append({"category": batch["category"], "error": str(e)})

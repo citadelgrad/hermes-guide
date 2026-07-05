@@ -1,4 +1,4 @@
-.PHONY: up down logs status restart deploy env
+.PHONY: up down logs status restart deploy env provision seed
 
 # Generate .env for Docker Compose from .envrc (strips 'export' prefixes).
 # Docker Compose env_file expects KEY=VALUE; .envrc uses 'export KEY=VALUE'.
@@ -23,9 +23,11 @@ status:
 restart:
 	docker compose restart
 
+provision:
+	scripts/provision.sh dfw
+
+seed:
+	scripts/seed.sh
+
 deploy:
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-	@echo "  hermes-guide Fly.io deploy"
-	@echo "  See docs/deploy.md for first-deploy sequence."
-	@echo "  Run: cd backend && fly deploy"
-	@echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+	cd backend && fly deploy

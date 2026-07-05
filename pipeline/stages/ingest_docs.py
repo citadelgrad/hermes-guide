@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+import time
 from pathlib import Path
 
 import requests
@@ -10,6 +11,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 BACKEND_URL = os.environ.get("HERMES_GUIDE_URL", "http://127.0.0.1:7842")
 ADMIN_TOKEN = os.environ["HERMES_GUIDE_ADMIN_TOKEN"]
+INGEST_DELAY_SECONDS = float(os.environ.get("HERMES_GUIDE_INGEST_DELAY_SECONDS", "2.2"))
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=2, max=30))
@@ -39,6 +41,7 @@ def main():
         try:
             result = ingest_doc(doc["content"], doc["url"])
             print(f"[{i}/{len(docs)}] OK  {doc['url']} -> {result.get('status', 'unknown')}")
+            time.sleep(INGEST_DELAY_SECONDS)
         except Exception as e:
             print(f"[{i}/{len(docs)}] FAIL {doc['url']}: {e}", file=sys.stderr)
             failed.append({"url": doc["url"], "error": str(e)})

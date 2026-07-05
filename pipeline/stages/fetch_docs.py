@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Fetch URLs and extract markdown content via trafilatura."""
+"""Fetch docs content.
+
+The public docs site can serve Vercel Security Checkpoint HTML to automated
+fetchers. Try the public page first, then fall back to the source markdown in
+the Hermes Agent GitHub repo.
+"""
 import json
 import sys
 import time
 from pathlib import Path
 
+import requests
 import trafilatura
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
@@ -12,14 +18,38 @@ from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 @retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(initial=1, max=10))
 def fetch_page(url: str) -> str | None:
     downloaded = trafilatura.fetch_url(url)
-    if not downloaded:
-        return None
-    return trafilatura.extract(
-        downloaded,
-        include_tables=True,
-        favor_recall=True,
-        output_format="markdown",
-    )
+    if downloaded:
+        extracted = trafilatura.extract(
+            downloaded,
+            include_tables=True,
+            favor_recall=True,
+            output_format="markdown",
+        )
+        if extracted and len(extracted.strip()) > 100:
+            return extracted
+
+    return fetch_github_markdown(url)
+
+
+def fetch_github_markdown(public_url: str) -> str | None:
+    slug = public_url.removeprefix("https://hermes-agent.nousresearch.com/docs/").strip("/")
+    candidates = ["website/docs/index.mdx"] if not slug else [
+        f"website/docs/{slug}.md",
+        f"website/docs/{slug}.mdx",
+        f"website/docs/{slug}/index.md",
+        f"website/docs/{slug}/index.mdx",
+    ]
+
+    for path in candidates:
+        raw_url = f"https://raw.githubusercontent.com/NousResearch/hermes-agent/main/{path}"
+        resp = requests.get(raw_url, timeout=30)
+        if resp.status_code == 404:
+            continue
+        resp.raise_for_status()
+        content = resp.text.strip()
+        if len(content) > 100:
+            return content
+    return None
 
 
 def main():

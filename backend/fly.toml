@@ -1,13 +1,13 @@
 app = "hermes-guide"
-primary_region = "sjc"
+primary_region = "dfw"
 
 [build]
   dockerfile = "Dockerfile"
 
 [[vm]]
-  cpu_kind = "performance"
+  cpu_kind = "shared"
   cpus = 1
-  memory = "512mb"
+  memory = "1024mb"
 
 [http_service]
   internal_port = 8080

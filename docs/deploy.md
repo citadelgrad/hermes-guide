@@ -33,9 +33,8 @@ When prompted:
 
 ```bash
 fly secrets set \
-  HERMES_GUIDE_QUERY_TOKEN="$(openssl rand -hex 32)" \
   HERMES_GUIDE_ADMIN_TOKEN="$(openssl rand -hex 32)" \
-  OPENAI_API_KEY="sk-..." \
+  GEMINI_API_KEY="sk-..." \
   LIGHTRAG_DATA_DIR="/data" \
   EMBEDDING_RATE_LIMIT_DELAY="0" \
   MAX_ASYNC="2"
@@ -62,9 +61,8 @@ curl -s https://hermes-guide.fly.dev/health
 # Should return 200 (LightRAG initialized)
 curl -s https://hermes-guide.fly.dev/ready
 
-# Test query — should return recommendations JSON
+# Test query — should return recommendations JSON (no auth required)
 curl -s -X POST https://hermes-guide.fly.dev/query \
-  -H "Authorization: Bearer $HERMES_GUIDE_QUERY_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"goal": "I want Hermes to help me review code", "skills_list": [], "soul_md": ""}'
 ```
@@ -73,8 +71,8 @@ curl -s -X POST https://hermes-guide.fly.dev/query \
 
 - [ ] `/health` returns 200
 - [ ] `/ready` returns 200
-- [ ] `POST /query` with test payload returns >=1 recommendation in < 5s
-- [ ] `POST /ingest` with QUERY_TOKEN -> 401 (graph poisoning prevented)
+- [ ] `POST /query` with test payload returns >=1 recommendation in < 5s (no auth needed)
+- [ ] `POST /ingest` with no token -> 403 (graph poisoning prevented)
 - [ ] `POST /ingest` with ADMIN_TOKEN -> 202 (admin ingest works)
 - [ ] `fly secrets list` shows `HERMES_GUIDE_ADMIN_TOKEN` (value redacted — good)
 - [ ] `git log -p | grep -i admin_token` returns nothing (token never committed)
@@ -85,12 +83,8 @@ curl -s -X POST https://hermes-guide.fly.dev/query \
 After first successful deploy, run the ingestion pipelines against production:
 
 ```bash
-# Export production URL and admin token
-# NOTE: Fly redacts secret values — fly secrets list only shows names, not values.
-# Retrieve HERMES_GUIDE_ADMIN_TOKEN from wherever you stored it when you ran
-# `fly secrets set` (password manager, 1Password, .envrc backup, etc.)
-export HERMES_GUIDE_URL="https://hermes-guide.fly.dev"
-export HERMES_GUIDE_ADMIN_TOKEN="<your-admin-token>"
+# HERMES_GUIDE_URL and HERMES_GUIDE_ADMIN_TOKEN are written to .envrc by make provision.
+# direnv loads them automatically. Or export manually:
 
 # Run docs pipeline
 python pipeline/run-docs-pipeline.py
@@ -112,6 +106,6 @@ fly deploy  # --ha=false only needed on first deploy
 
 | Use case | Machine type | Why |
 |----------|-------------|-----|
-| Production (default) | `performance-1x` (1 CPU, 512mb) | Entity extraction needs sustained CPU |
-| Seeding run | `performance-1x` (2 CPU, 1gb) | `fly scale vm performance-2x --memory 1024` during seed |
-| After seeding | Back to default | `fly scale vm performance-1x --memory 512` |
+| Production (default) | `performance-1x` (1 CPU, 1gb) | Entity extraction needs sustained CPU |
+| Seeding run | `performance-2x` (2 CPU, 2gb) | `fly scale vm performance-2x --memory 2048` during seed |
+| After seeding | Back to default | `fly scale vm performance-1x --memory 1024` |

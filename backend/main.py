@@ -1,5 +1,6 @@
 import hashlib
 import os
+import re
 import secrets
 from contextlib import asynccontextmanager
 
@@ -25,20 +26,19 @@ structlog.configure(
 logger = structlog.get_logger()
 
 # Environment config
-QUERY_TOKEN = os.environ["HERMES_GUIDE_QUERY_TOKEN"]
 ADMIN_TOKEN = os.environ["HERMES_GUIDE_ADMIN_TOKEN"]
 DATA_DIR = os.environ.get("LIGHTRAG_DATA_DIR", "/data")
 MAX_ASYNC = int(os.environ.get("MAX_ASYNC", "2"))
 
 # LightRAG setup
 from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import openai_complete_if_cache, openai_embed
+from lightrag.llm.gemini import gemini_complete_if_cache, gemini_embed
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
 async def llm_model_func(prompt, system_prompt=None, history_messages=None, **kwargs):
-    return await openai_complete_if_cache(
-        "gpt-4o-mini",
+    return await gemini_complete_if_cache(
+        "gemini-3.1-flash-lite",
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
@@ -46,7 +46,7 @@ async def llm_model_func(prompt, system_prompt=None, history_messages=None, **kw
     )
 
 async def embedding_func(texts: list[str]) -> np.ndarray:
-    return await openai_embed(texts, model="text-embedding-3-small")
+    return await gemini_embed(texts, model="gemini-embedding-001", embedding_dim=1536)
 
 rag = LightRAG(
     working_dir=DATA_DIR,
@@ -84,11 +84,6 @@ class IngestRequest(BaseModel):
 
 # Auth
 security = HTTPBearer()
-
-
-def require_query_token(creds: HTTPAuthorizationCredentials = Depends(security)):
-    if not secrets.compare_digest(creds.credentials, QUERY_TOKEN):
-        raise HTTPException(status_code=401, detail="Invalid token")
 
 
 def require_admin_token(creds: HTTPAuthorizationCredentials = Depends(security)):
@@ -144,30 +139,24 @@ async def ready():
     return {"status": "ready"}
 
 
-@app.post("/query", dependencies=[Depends(require_query_token)])
-@limiter.limit("60/minute")
+@app.post("/query")
+@limiter.limit("10/minute")
 async def query(request: Request, payload: QueryRequest):
     soul_content = payload.get_soul_content()
+    contexts = []
 
-    # Build query string with context embedded — user_prompt only affects LLM generation
-    # not retrieval, so keywords must be in the query string itself
-    query_str = f"""User goal: {payload.goal}
-Currently installed skills: {', '.join(payload.skills_list) if payload.skills_list else 'none'}
-SOUL.md present: {'yes, content follows' if soul_content else 'no'}
-{('SOUL.md content:\n' + soul_content) if soul_content else ''}
+    for intent in _intent_queries_from_payload(payload, soul_content):
+        param = QueryParam(
+            mode="mix",                # official default as of PR #3287 (June 2026)
+            only_need_context=True,    # eliminates LightRAG's internal LLM call; cuts latency to 500-800ms
+            top_k=max(3, min(payload.max_results, 8)),
+            hl_keywords=["soul.md", "skills", "hermes", "configuration", "setup", *intent["keywords"][:8]],
+            ll_keywords=intent["keywords"][:10],
+        )
+        context = await rag.aquery(intent["query"], param=param)
+        contexts.append({"intent": intent["intent"], "context": context})
 
-Given this setup, what specific skills should they add, what SOUL.md sections
-are missing or weak, and what are the highest-impact next actions?"""
-
-    param = QueryParam(
-        mode="mix",                # official default as of PR #3287 (June 2026)
-        only_need_context=True,    # eliminates LightRAG's internal LLM call; cuts latency to 500-800ms
-        top_k=payload.max_results,
-        hl_keywords=["soul.md", "skills", "hermes", "configuration", "setup"],
-        ll_keywords=payload.skills_list or [],
-    )
-
-    context = await rag.aquery(query_str, param=param)
+    context = _merge_intent_contexts(contexts)
 
     # Parse context into structured recommendations
     # When only_need_context=True, context is raw graph text — parse into recommendations
@@ -178,6 +167,149 @@ are missing or weak, and what are the highest-impact next actions?"""
         context_lines=len(context.split("\n")) if context else 0,
         query_mode="mix",
     )
+
+
+def _keywords_from_text(text: str) -> list[str]:
+    stopwords = {
+        "about", "after", "before", "build", "from", "help", "hermes", "into",
+        "should", "that", "their", "them", "this", "want", "what", "when", "which",
+        "with", "would", "your",
+    }
+    keywords = []
+    seen = set()
+    for word in re.findall(r"[a-zA-Z][a-zA-Z0-9_-]{2,}", text.lower()):
+        if word in stopwords or word in seen:
+            continue
+        keywords.append(word)
+        seen.add(word)
+    return keywords
+
+
+def _intent_queries_from_payload(payload: QueryRequest, soul_content: str) -> list[dict]:
+    """Build one broad query plus per-intent queries so mixed goals do not collapse to one topic."""
+    soul_block = f"SOUL.md content:\n{soul_content}" if soul_content else ""
+    skills = [s.strip().lower() for s in payload.skills_list if s.strip()]
+    goal = payload.goal.strip()
+
+    base_context = f"""Currently installed skills: {', '.join(payload.skills_list) if payload.skills_list else 'none'}
+SOUL.md present: {'yes, content follows' if soul_content else 'no'}
+{soul_block}"""
+
+    phrases = _intent_phrases_from_goal(goal)
+    queries = []
+
+    for phrase in phrases:
+        keywords = _expand_keywords(_keywords_from_text(phrase) + skills)
+        if not keywords:
+            continue
+        queries.append({
+            "intent": phrase,
+            "keywords": keywords,
+            "query": f"""User goal intent: {phrase}
+Retrieval aliases: {', '.join(keywords)}
+Full user goal: {goal}
+{base_context}
+
+For this specific intent, what Hermes skills, documentation, or setup guidance are relevant?""",
+        })
+
+    broad_keywords = _expand_keywords(_keywords_from_text(goal) + skills)
+    queries.append({
+        "intent": "combined goal",
+        "keywords": broad_keywords,
+        "query": f"""User goal: {goal}
+Retrieval aliases: {', '.join(broad_keywords)}
+{base_context}
+
+Given this full setup, what specific skills should they add, what SOUL.md sections
+are missing or weak, and what are the highest-impact next actions?""",
+    })
+
+    return queries[:5]
+
+
+def _intent_phrases_from_goal(goal: str) -> list[str]:
+    normalized = re.sub(r"\b(?:and|plus|also|along with|as well as)\b", ",", goal, flags=re.IGNORECASE)
+    parts = [part.strip(" .;:-") for part in re.split(r"[,;\n]+", normalized) if part.strip(" .;:-")]
+
+    phrases = []
+    seen = set()
+    for part in parts:
+        cleaned = re.sub(
+            r"^(?:i\s+want\s+hermes\s+to\s+help\s+me|i\s+want\s+to|help\s+me|which\s+hermes\s+skill\s+should\s+i\s+install\s+to)\s+",
+            "",
+            part,
+            flags=re.IGNORECASE,
+        ).strip()
+        if len(cleaned) < 4:
+            continue
+        key = cleaned.lower()
+        if key in seen:
+            continue
+        phrases.append(cleaned)
+        seen.add(key)
+
+    return phrases or [goal]
+
+
+def _expand_keywords(keywords: list[str]) -> list[str]:
+    aliases = {
+        "review": ["code review", "review code", "pull request", "code-review"],
+        "code": ["code review", "software development"],
+        "tdd": ["test-driven development", "test driven", "tests", "regression tests"],
+        "test": ["test-driven development", "tdd", "regression tests"],
+        "tests": ["test-driven development", "tdd", "regression tests"],
+        "youtube": ["youtube transcript", "youtube content", "transcript", "video summary"],
+        "transcript": ["youtube transcript", "youtube content", "video summary"],
+        "transcripts": ["youtube transcript", "youtube content", "transcript"],
+        "email": ["email triage", "gmail", "inbox"],
+        "calendar": ["calendar", "scheduling", "followups"],
+    }
+
+    expanded = []
+    seen = set()
+    for keyword in keywords:
+        for candidate in [keyword, *aliases.get(keyword, [])]:
+            candidate = candidate.strip().lower()
+            if candidate and candidate not in seen:
+                expanded.append(candidate)
+                seen.add(candidate)
+    return expanded
+
+
+def _merge_intent_contexts(contexts: list[dict], max_chars: int = 6000) -> str:
+    """Merge LightRAG context from multiple intents while preserving each intent's slice."""
+    sections = []
+    seen_lines = set()
+    per_intent_budget = max(900, max_chars // max(1, len(contexts)))
+
+    for item in contexts:
+        raw_context = (item.get("context") or "").strip()
+        if not raw_context:
+            continue
+
+        lines = []
+        for line in raw_context.splitlines():
+            normalized = line.strip()
+            if not normalized:
+                continue
+            key = re.sub(r"\s+", " ", normalized.lower())
+            if key in seen_lines:
+                continue
+            seen_lines.add(key)
+            lines.append(line)
+
+        if not lines:
+            continue
+
+        section = f"Intent: {item.get('intent', 'goal')}\n" + "\n".join(lines)
+        sections.append(section[:per_intent_budget])
+
+    merged = "\n\n".join(sections)
+    if len(merged) <= max_chars:
+        return merged
+
+    return merged[:max_chars].rsplit("\n", 1)[0]
 
 
 def _parse_context_to_recommendations(context: str, payload: QueryRequest) -> list[dict]:
@@ -198,7 +330,7 @@ def _parse_context_to_recommendations(context: str, payload: QueryRequest) -> li
 
     recs.append({
         "category": "knowledge_context",
-        "text": context[:4000],  # cap for response size
+        "text": context[:6000],  # cap for response size
         "priority": 2,
     })
 

@@ -11,3 +11,8 @@
 
 # LightRAG data volume
 data/
+
+# Generated pipeline/runtime artifacts
+pipeline/output/
+__pycache__/
+*.pyc

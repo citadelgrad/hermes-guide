@@ -611,6 +611,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
+    { name = "google-genai" },
     { name = "lightrag-hku" },
     { name = "numpy" },
     { name = "pydantic" },
@@ -622,6 +623,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "fastapi" },
+    { name = "google-genai" },
     { name = "lightrag-hku" },
     { name = "numpy" },
     { name = "pydantic", specifier = ">=2" },

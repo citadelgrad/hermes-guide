@@ -6,6 +6,7 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "lightrag-hku",
+    "google-genai",
     "numpy",
     "slowapi",
     "structlog",

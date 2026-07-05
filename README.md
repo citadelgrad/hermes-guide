@@ -12,10 +12,13 @@ Personalized [Hermes Agent](https://hermes-agent.nousresearch.com) setup coachin
 hermes skills install https://raw.githubusercontent.com/citadelgrad/hermes-guide/main/skill/v1/guide.md
 ```
 
-Then set two environment variables (Hermes will prompt you on first run):
+Then set one environment variable:
 
-- `HERMES_GUIDE_URL` — `https://hermes-guide.fly.dev` (hosted, free) or your self-hosted URL
-- `HERMES_GUIDE_QUERY_TOKEN` — get one by opening an issue: [Request a token](https://github.com/citadelgrad/hermes-guide/issues/new?title=Token+request&body=Please+share+a+query+token)
+```bash
+export HERMES_GUIDE_URL="https://hermes-guide.fly.dev"
+```
+
+Add it to your `~/.envrc` (or shell profile) so it's available in every session. No token needed — the API is public.
 
 ## Usage
 
@@ -92,7 +95,7 @@ then non-blocking. If you're not sure whether something is a bug, say so — don
 git clone https://github.com/citadelgrad/hermes-guide
 cd hermes-guide
 cp backend/.envrc.example .envrc
-# Edit .envrc — set HERMES_GUIDE_QUERY_TOKEN, HERMES_GUIDE_ADMIN_TOKEN, OPENAI_API_KEY
+# Edit .envrc — set GEMINI_API_KEY and HERMES_GUIDE_ADMIN_TOKEN
 make up
 ```
 
