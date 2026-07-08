@@ -61,14 +61,19 @@ SOUL=$(cat "$HOME/.hermes/soul.md" 2>/dev/null || echo "")
 SKILLS=$(ls "$HOME/.hermes/skills/" 2>/dev/null | tr '\n' ',' | sed 's/,$//')
 GOAL=$(cat "$GOAL_FILE")
 MAX=${HERMES_GUIDE_MAX_RESULTS:-5}
+SESSION_ID="guide-$(date -u +%Y%m%dT%H%M%SZ)-$(uuidgen 2>/dev/null || openssl rand -hex 8)"
 PAYLOAD=$(jq -n \
   --arg soul   "$SOUL" \
   --arg skills "$SKILLS" \
   --arg goal   "$GOAL" \
+  --arg session_id "$SESSION_ID" \
+  --arg user_id "${USER:-hermes-guide-user}" \
   --argjson max "$MAX" \
   '{soul_md: $soul,
     skills_list: ($skills | split(",") | map(select(length > 0))),
     goal: $goal,
+    session_id: $session_id,
+    user_id: $user_id,
     max_results: $max}')
 printf '%s' "$PAYLOAD" > "$PAYLOAD_FILE"
 """
@@ -84,7 +89,18 @@ printf '%s' "$PAYLOAD" > "$PAYLOAD_FILE"
             self.assertEqual(payload["goal"], goal)
             self.assertEqual(payload["soul_md"], soul.rstrip("\n"))
             self.assertEqual(payload["max_results"], 8)
+            self.assertRegex(payload["session_id"], r"^guide-\d{8}T\d{6}Z-")
+            self.assertEqual(payload["user_id"], env.get("USER", "hermes-guide-user"))
             self.assertEqual(set(payload["skills_list"]), {"software-development-workflows", "duckduckgo-search"})
+
+    def test_skill_sends_langfuse_session_header(self):
+        for path in SKILL_PATHS:
+            with self.subTest(path=path.relative_to(REPO)):
+                text = path.read_text()
+
+                self.assertIn("SESSION_ID=\"guide-$(date -u +%Y%m%dT%H%M%SZ)-", text)
+                self.assertIn("session_id: $session_id", text)
+                self.assertIn("X-Langfuse-Session-Id: $SESSION_ID", text)
 
     def test_skill_presentation_contract_is_three_user_facing_sections(self):
         skill_text = (REPO / "skill/guide.md").read_text()

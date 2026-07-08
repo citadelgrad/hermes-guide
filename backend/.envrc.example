@@ -5,6 +5,11 @@ export EMBEDDING_RATE_LIMIT_DELAY=0
 export MAX_ASYNC=2
 export MAX_PARALLEL_INSERT=2
 
+# Optional: LangFuse tracing — omit to disable
+# export LANGFUSE_PUBLIC_KEY="pk-lf-..."
+# export LANGFUSE_SECRET_KEY="sk-lf-..."
+# export LANGFUSE_HOST="https://langfuse.example.com"
+
 # Optional: enables LightRAG chunk reranking instead of falling back to retrieval order.
 # export JINA_API_KEY="jina_..."
 # export RERANK_PROVIDER="jina"

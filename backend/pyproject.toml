@@ -11,6 +11,7 @@ dependencies = [
     "slowapi",
     "structlog",
     "pydantic>=2",
+    "langfuse>=4.13.0",
 ]
 
 [dependency-groups]

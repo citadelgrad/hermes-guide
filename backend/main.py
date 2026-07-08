@@ -10,6 +10,7 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from langfuse import propagate_attributes
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
@@ -31,6 +32,12 @@ ADMIN_TOKEN = os.environ["HERMES_GUIDE_ADMIN_TOKEN"]
 DATA_DIR = os.environ.get("LIGHTRAG_DATA_DIR", "/data")
 MAX_ASYNC = int(os.environ.get("MAX_ASYNC", "2"))
 DEFAULT_RERANK_MODEL = "jina-reranker-v3"
+
+# Optional Langfuse tracing — no-op when keys absent
+_langfuse = None
+if os.environ.get("LANGFUSE_PUBLIC_KEY") and os.environ.get("LANGFUSE_SECRET_KEY"):
+    from langfuse import Langfuse
+    _langfuse = Langfuse()
 
 # LightRAG setup
 from lightrag import LightRAG, QueryParam
@@ -138,6 +145,8 @@ class QueryRequest(BaseModel):
     goal: str
     skills_list: list[str] = []
     soul_md: SecretStr = Field(default=SecretStr(""), repr=False)
+    session_id: str | None = Field(default=None, max_length=200)
+    user_id: str | None = Field(default=None, max_length=200)
     max_results: int = Field(default=5, ge=1, le=20)
 
     def get_soul_content(self) -> str:
@@ -212,28 +221,73 @@ async def ready():
     return {"status": "ready"}
 
 
+@app.get("/config")
+async def get_config():
+    """Return non-secret retrieval configuration."""
+    provider = _configured_rerank_provider()
+    return {
+        "query_mode": "mix",
+        "only_need_context": True,
+        "rerank_enabled": provider is not None,
+        "rerank_provider": provider,
+        "rerank_model": os.getenv("RERANK_MODEL") if provider else None,
+        "related_chunk_number": _related_chunk_number(),
+        "max_async": MAX_ASYNC,
+        "max_async_rerank": _env_int("MAX_ASYNC_RERANK", 1 if _rerank_enabled() else MAX_ASYNC),
+    }
+
+
 @app.post("/query")
 @limiter.limit("10/minute")
 async def query(request: Request, payload: QueryRequest):
     soul_content = payload.get_soul_content()
-    contexts = []
 
+    trace_input = {
+        "goal": payload.goal,
+        "skills": payload.skills_list,
+        "soul_md_present": bool(soul_content),
+    }
+    if not _langfuse:
+        return await _query_response(payload, soul_content)
+
+    session_id = payload.session_id or request.headers.get("x-langfuse-session-id") or request.headers.get("x-session-id")
+    user_id = payload.user_id or request.headers.get("x-langfuse-user-id")
+    with propagate_attributes(
+        session_id=session_id,
+        user_id=user_id,
+        trace_name="hermes-guide query",
+        tags=["query", "api"],
+        metadata={"endpoint": "/query", "soul_md_present": bool(soul_content)},
+    ):
+        with _langfuse.start_as_current_observation(name="query", as_type="retriever", input=trace_input) as span:
+            try:
+                response = await _query_response(payload, soul_content)
+                span.update(output={"context_lines": response.context_lines, "recommendations_count": len(response.recommendations)})
+                return response
+            except Exception as exc:
+                span.update(level="ERROR", status_message=str(exc))
+                raise
+            finally:
+                _langfuse.flush()
+
+
+async def _query_response(payload: QueryRequest, soul_content: str) -> QueryResponse:
+
+    contexts = []
     for intent in _intent_queries_from_payload(payload, soul_content):
         param = _query_param_for_intent(payload, intent)
         context = await rag.aquery(intent["query"], param=param)
         contexts.append({"intent": intent["intent"], "context": context})
 
     context = _merge_intent_contexts(contexts)
-
-    # Parse context into structured recommendations
-    # When only_need_context=True, context is raw graph text — parse into recommendations
     recommendations = _parse_context_to_recommendations(context, payload)
-
-    return QueryResponse(
+    response = QueryResponse(
         recommendations=recommendations,
         context_lines=len(context.split("\n")) if context else 0,
         query_mode="mix",
     )
+
+    return response
 
 
 def _keywords_from_text(text: str) -> list[str]:

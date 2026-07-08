@@ -102,6 +102,24 @@ make up
 
 See [docs/deploy.md](docs/deploy.md) for Fly.io production deployment.
 
+## Evaluations
+
+hermes-guide ships a retrieval eval suite to detect regressions in LightRAG context quality.
+
+**Run evals** (fixture mode — no network calls required):
+```bash
+make eval
+```
+
+**With JSON report**:
+```bash
+python evals/run_retrieval_evals.py evals/cases/hermes_guide_retrieval.jsonl \
+  --fixture evals/fixtures/sample_responses.jsonl \
+  --report evals/reports/latest.json
+```
+
+Evals score fixture responses against keyword/structural criteria and exit nonzero on failure. To add a new eval case, append a JSON object to `evals/cases/hermes_guide_retrieval.jsonl` and add a matching fixture response to `evals/fixtures/sample_responses.jsonl`.
+
 ## Privacy
 
 SOUL.md content is processed in-memory only. The API does not log request bodies, does not store SOUL.md content beyond the request lifecycle, and does not pass it to any LLM (the hosted instance uses `only_need_context: true` — raw graph context is returned for your local Hermes session to synthesize). Validation errors return field locations only — not submitted values.

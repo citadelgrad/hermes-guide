@@ -92,15 +92,20 @@ SOUL=$(cat ~/.hermes/soul.md 2>/dev/null || echo "")
 SKILLS=$(ls ~/.hermes/skills/ 2>/dev/null | tr '\n' ',' | sed 's/,$//')
 GOAL=$(cat /tmp/hermes_guide_goal.txt)
 MAX=${HERMES_GUIDE_MAX_RESULTS:-5}
+SESSION_ID="guide-$(date -u +%Y%m%dT%H%M%SZ)-$(uuidgen 2>/dev/null || openssl rand -hex 8)"
 
 PAYLOAD=$(jq -n \
   --arg soul   "$SOUL" \
   --arg skills "$SKILLS" \
   --arg goal   "$GOAL" \
+  --arg session_id "$SESSION_ID" \
+  --arg user_id "${USER:-hermes-guide-user}" \
   --argjson max "$MAX" \
   '{soul_md: $soul,
     skills_list: ($skills | split(",") | map(select(length > 0))),
     goal: $goal,
+    session_id: $session_id,
+    user_id: $user_id,
     max_results: $max}')
 ```
 
@@ -114,8 +119,11 @@ Run:
 ```bash
 RESPONSE=$(curl -fsSL -X POST "$HERMES_GUIDE_URL/query" \
   -H "Content-Type: application/json" \
+  -H "X-Langfuse-Session-Id: $SESSION_ID" \
   -d "$PAYLOAD")
 ```
+
+Keep `$SESSION_ID` available while presenting the response. If the operator needs to debug observability, tell them the Langfuse session id for this guide run.
 
 The `-fsSL` flags are required: `-f` causes curl to return a non-zero exit code on HTTP 4xx/5xx (instead of silently returning error HTML), `-s` suppresses the progress meter, `-S` shows errors when `-s` is active, and `-L` follows redirects.
 
