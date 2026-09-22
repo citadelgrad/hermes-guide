@@ -6,10 +6,6 @@ resolution-markers = [
     "python_full_version < '3.13'",
 ]
 
-[options]
-exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
-exclude-newer-span = "P3D"
-
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.6.2"
@@ -763,7 +759,7 @@ wheels = [
 
 [[package]]
 name = "lightrag-hku"
-version = "1.5.4"
+version = "1.5.5rc1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -786,9 +782,9 @@ dependencies = [
     { name = "tiktoken" },
     { name = "xlsxwriter" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/77/02/154120751550ec5ce8edb2ba6cc599c3e232dc9b9b01858fc09de2189c02/lightrag_hku-1.5.4.tar.gz", hash = "sha256:48737d21ec545e36d1d495a28b067f28f78136fe5f8b0b31d7f12632244b302c", size = 4094726, upload-time = "2026-06-24T10:25:02.446Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/71/701fd82fd4c266297a56aec79cd86d187d6a8212f847bba516bf583903cb/lightrag_hku-1.5.5rc1.tar.gz", hash = "sha256:d41bf4087b3565b8723a6fdae66052c6f1b0d9dac784f67dde46f602a25ced57", size = 4293893, upload-time = "2026-07-13T19:34:36.179Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/30/1c/98bafa29b030be57e96f5f0ebe21dc6908ad308abfc0b9e6efeea4952cf4/lightrag_hku-1.5.4-py3-none-any.whl", hash = "sha256:3bb28b2a763a91fb11b9ac87798140be852891edf71266cff59018d23afeea9d", size = 4216903, upload-time = "2026-06-24T10:25:00.12Z" },
+    { url = "https://files.pythonhosted.org/packages/b9/d2/573dfd7fc9505f77fec0b2f9239ae4d2685226eb175b9fbeda138d862ade/lightrag_hku-1.5.5rc1-py3-none-any.whl", hash = "sha256:ad765fae3915e0ab63af2b239a613319907f763a3b569957d8308527fca774ed", size = 4423414, upload-time = "2026-07-13T19:34:33.512Z" },
 ]
 
 [[package]]
